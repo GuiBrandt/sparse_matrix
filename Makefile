@@ -7,11 +7,10 @@ GOOGLE_TEST_LIB = gtest
 LDLIBS_MAIN=-lm
 LDLIBS_TESTS=-lm -l$(GOOGLE_TEST_LIB) -lpthread
 
-INCLUDES=include avl_tree/include
+INCLUDES=-Iinclude -Iavl_tree/include
 
 all: interactive tests
 interactive: obj/main.o
-	mkdir -p bin
 	$(CXX) $(LDFLAGS) $(LDLIBS_MAIN) -o build/sparse_matrix $^
 
 tests: sparse_matrix_tests
@@ -24,15 +23,16 @@ win32: tests
 
 obj/%_tests.o: tests/%_tests.cpp include/%.hpp
 	mkdir -p obj
-	$(CXX) $(CXXFLAGS) -I$(INCLUDES) $(LDLIBS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDLIBS) -c $< -o $@
 
 obj/main.o: main.cpp include/sparse_matrix.hpp
 	mkdir -p build
 	mkdir -p obj
-	$(CXX) $(CXXFLAGS) -I$(INCLUDES) $(LDLIBS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDLIBS) -c $< -o $@
 
 clean:
 	$(RM) -r build
 	$(RM) -r obj
+	$(RM) -r bin
 
 .PHONY: all interactive tests clean

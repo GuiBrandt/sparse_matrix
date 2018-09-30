@@ -16,16 +16,13 @@
  * @tparam T Tipo do pair
  */
 template < class T > struct compare_key {
-private:
-    T::first_type value;
-
 public:
     /**
      * @brief Construtor
      * 
      * @param val Valor esperado da chave
      */
-    compare_key(T::first_type val) : val_(val) {}
+    compare_key() {}
 
     /**
      * @brief Executa a comparação
@@ -34,8 +31,8 @@ public:
      * @return true se a chave for igual à esperada
      * @return false se não
      */
-    bool operator()(const T& pair) const {
-        return val_ == pair.first;
+    bool operator()(const T& a, const T&b) const {
+        return a.first == b.first;
     }
 };
 
@@ -54,10 +51,13 @@ private:
 
     typedef std::pair<size_t, column_tree*> row;
 
-    avl_tree<row, std::less<row>, compare_key<row>> rows;   //! Árvore interna
-    T _default;                                             //! Valor padrão 
+    avl_tree<row, std::less<row>, compare_key<row>> row_tree;   //! Árvore interna
+    T _default;                                                 //! Valor padrão 
 
 public:
+
+    const static unsigned int rows = N;     //! Linhas da matriz
+    const static unsigned int columns = M;  //! Colunas da matriz
 
     /**
      * @brief Construtor
@@ -89,7 +89,6 @@ public:
             _matrix = other._matrix;
             _col = other._col;
             _row = other._row;
-            _value = other.value;
 
             return *this;
         }
@@ -101,18 +100,16 @@ public:
          * @return cell& Esse objeto
          */
         cell & operator=(const T & value) {
-            _value = value;
-
             row r(_row, nullptr);
-            col c(_col, _value);
+            column c(_col, value);
 
-            if (!_matrix->rows.includes(r)) {
-                columns_tree* ct = new column_tree();
+            if (!_matrix->row_tree.includes(r)) {
+                column_tree* ct = new column_tree();
                 ct->insert(c);
 
                 r.second = ct;
 
-                _matrix->rows.insert(r);
+                _matrix->row_tree.insert(r);
 
             } else
                 r.second->update(c);
@@ -129,7 +126,7 @@ public:
             row r;
             r.first = _row;
 
-            if (_matrix->rows.includes(r)) {
+            if (_matrix->row_tree.includes(r)) {
                 column_tree* cols = r.second;
 
                 column col;
@@ -151,7 +148,7 @@ public:
             row r;
             r.first = _row;
 
-            if (_matrix->rows.includes(r)) {
+            if (_matrix->row_tree.includes(r)) {
                 column_tree* cols = r.second;
 
                 column col;
@@ -163,7 +160,7 @@ public:
             
             return &_matrix->_default;
         }
-    }
+    };
 
     /**
      * @brief Obtém o valor em uma determinada posição da matriz
@@ -172,7 +169,7 @@ public:
      * @param m Coluna na matriz
      * @return cell A célula naquela posição da matriz
      */
-    cell operator[](size_t n, size_t m) const {
+    cell at(size_t n, size_t m) {
         return cell(this, n, m);
     }
 };
