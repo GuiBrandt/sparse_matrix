@@ -11,40 +11,38 @@
 #include <avl_tree.hpp>
 
 /**
- * @brief Classe de comparador para apenas a chave num std::pair
- * 
- * @tparam T Tipo do pair
- */
-template < class T > struct compare_key {
-public:
-    /**
-     * @brief Construtor
-     * 
-     * @param val Valor esperado da chave
-     */
-    compare_key() {}
-
-    /**
-     * @brief Executa a comparação
-     * 
-     * @param pair Par de valores
-     * @return true se a chave for igual à esperada
-     * @return false se não
-     */
-    bool operator()(const T& a, const T&b) const {
-        return a.first == b.first;
-    }
-};
-
-/**
  * @brief Classe de matriz esparsa
  * 
  * @tparam T Tipo de valor armazenado na matriz
- * @tparam N Linhas na matriz
- * @tparam M Colunas na matriz
  */
 template < class T > class sparse_matrix {
 private:
+    /**
+     * @brief Classe de comparador para apenas a chave num std::pair
+     * 
+     * @tparam U Tipo do std::pair
+     */
+    template < class U > struct compare_key {
+    public:
+        /**
+         * @brief Construtor
+         * 
+         * @param val Valor esperado da chave
+         */
+        compare_key() {}
+
+        /**
+         * @brief Executa a comparação
+         * 
+         * @param a Um par de valores do tipo especificado
+         * @param b Outro par se valores
+         * @return true se a chave de `a` for igual à de `b`
+         * @return false se não
+         */
+        bool operator()(const U& a, const U&b) const {
+            return a.first == b.first;
+        }
+    };
 
     typedef std::pair<size_t, T> column;
     typedef avl_tree<column, std::less<column>, compare_key<column>> column_tree;
