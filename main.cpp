@@ -23,22 +23,23 @@ int main(int argc, char** argv) {
     string line;
     smatch m;
 
-    sparse_matrix<int, 1000, 1000> matrix(0);
+    sparse_matrix<int> matrix(0);
 
     // Cabeçalho
     cout << "Interactive Sparse Matrix" << endl;
     cout << endl;
 
     cout << "n,m=x          : Set (N,M) to be X" << endl;
-    cout << "p|print n,m    : Print (N,M) out" << endl;
+    cout << "p|print n,m    : Print out the value at (N,M)" << endl;
     cout << "q|e|quit|exit  : Quit" << endl;
     cout << endl;
 
     cout << "Have fun!" << endl;
+    cout << endl;
 
     for (;;) {
 
-        cout << "matrix (" << decltype(matrix)::rows << ", " << decltype(matrix)::columns << ")> ";
+        cout << "matrix> ";
         getline(cin, line);
 
         // Encerra o programa

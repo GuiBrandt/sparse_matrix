@@ -43,7 +43,7 @@ public:
  * @tparam N Linhas na matriz
  * @tparam M Colunas na matriz
  */
-template < class T, unsigned int N, unsigned int M > class sparse_matrix {
+template < class T > class sparse_matrix {
 private:
 
     typedef std::pair<size_t, T> column;
@@ -55,10 +55,6 @@ private:
     T _default;                                                 //! Valor padrão 
 
 public:
-
-    const static unsigned int rows = N;     //! Linhas da matriz
-    const static unsigned int columns = M;  //! Colunas da matriz
-
     /**
      * @brief Construtor
      */
@@ -103,16 +99,28 @@ public:
             row r(_row, nullptr);
             column c(_col, value);
 
-            if (!_matrix->row_tree.includes(r)) {
-                column_tree* ct = new column_tree();
-                ct->insert(c);
+            if (value == _matrix->_default) {
+                if (_matrix->row_tree.includes(r)) {
+                    if (r.second->includes(c))
+                        r.second->remove(c);
 
-                r.second = ct;
+                    if (r.second->empty()) {
+                        delete r.second;
+                        _matrix->row_tree.remove(r);
+                    }
+                }
+            } else {
+                if (!_matrix->row_tree.includes(r)) {
+                    column_tree* ct = new column_tree();
+                    ct->insert(c);
 
-                _matrix->row_tree.insert(r);
+                    r.second = ct;
 
-            } else
-                r.second->update(c);
+                    _matrix->row_tree.insert(r);
+
+                } else
+                    r.second->update(c);
+            }
 
             return *this;
         }
