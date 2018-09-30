@@ -9,7 +9,7 @@ LDLIBS_TESTS=-lm -l$(GOOGLE_TEST_LIB) -lpthread
 
 INCLUDES=-Iinclude -Iavl_tree/include
 
-all: interactive tests
+all: interactive #tests
 interactive: obj/main.o
 	$(CXX) $(LDFLAGS) $(LDLIBS_MAIN) -o build/sparse_matrix $^
 
@@ -35,4 +35,4 @@ clean:
 	$(RM) -r obj
 	$(RM) -r bin
 
-.PHONY: all interactive tests clean
+.PHONY: all interactive clean #tests
