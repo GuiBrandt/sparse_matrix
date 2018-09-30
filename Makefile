@@ -7,7 +7,7 @@ GOOGLE_TEST_LIB = gtest
 LDLIBS_MAIN=-lm
 LDLIBS_TESTS=-lm -l$(GOOGLE_TEST_LIB) -lpthread
 
-INCLUDES=include
+INCLUDES=include avl_tree/include
 
 all: interactive tests
 interactive: obj/main.o
