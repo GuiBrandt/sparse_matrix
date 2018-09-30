@@ -6,6 +6,7 @@
  * @date 2018-09-30
  */
 
+#include <functional>
 #include <utility>
 
 #include <avl_tree.hpp>
@@ -17,6 +18,7 @@
  */
 template < class T > class sparse_matrix {
 private:
+
     /**
      * @brief Classe de comparador para apenas a chave num std::pair
      * 
@@ -29,7 +31,7 @@ private:
          * 
          * @param val Valor esperado da chave
          */
-        compare_key() {}
+        compare_key() = default;
 
         /**
          * @brief Executa a comparação
@@ -50,24 +52,42 @@ private:
     typedef std::pair<size_t, column_tree*> row;
 
     avl_tree<row, std::less<row>, compare_key<row>> row_tree;   //! Árvore interna
-    T _default;                                                 //! Valor padrão 
+    T _default;                                                 //! Valor padrão
 
 public:
+
     /**
      * @brief Construtor
      */
     sparse_matrix(T def) : _default(def) {}
 
     /**
+     * @brief Construtor de cópia
+     * 
+     * @param other Matriz a ser copiada
+     */
+    sparse_matrix(const sparse_matrix & other) {
+        row_tree = other.row_tree;
+        _default = other._default;
+    }
+
+    /**
      * @brief Classe de célula na matriz
      */
     class cell {
-    friend class sparse_matrix;
+        friend class sparse_matrix;
 
     private:
         sparse_matrix* _matrix; //! Matriz à qual a célula pertence
         size_t _col, _row;      //! Linha e coluna da célula
         
+        /**
+         * @brief Construtor
+         * 
+         * @param matrix Matriz "dona" da célula
+         * @param row Linha
+         * @param col Coluna
+         */
         cell(sparse_matrix* matrix, size_t row, size_t col) : 
             _matrix(matrix), _col(col), _row(row) {}
 
@@ -107,6 +127,7 @@ public:
                         _matrix->row_tree.remove(r);
                     }
                 }
+
             } else {
                 if (!_matrix->row_tree.includes(r)) {
                     column_tree* ct = new column_tree();
@@ -121,6 +142,20 @@ public:
             }
 
             return *this;
+        }
+
+        /**
+         * @brief Operador de swap
+         * 
+         * @param a Um célula
+         * @param b Outra célula
+         */
+        friend void swap(cell & a, cell & b) {
+            using std::swap;
+
+            swap(a._matrix, b._matrix);
+            swap(a._row, b._row);
+            swap(a._col, b._col);
         }
 
         /**
@@ -166,10 +201,21 @@ public:
             
             return &_matrix->_default;
         }
+
+        /**
+         * @brief Escreve uma célula em uma stream de saída
+         * 
+         * @param c Célula
+         * @return std::ostream& Stream de saída
+         */
+        friend std::ostream & operator<<(std::ostream & os, const cell & c) {
+            os << *c;
+            return os;
+        }
     };
 
     /**
-     * @brief Obtém o valor em uma determinada posição da matriz
+     * @brief Obtém um célula em uma determinada posição da matriz
      * 
      * @param n Linha na matriz
      * @param m Coluna na matriz

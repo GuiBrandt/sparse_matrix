@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
             int r = stoi(m[1]),
                 c = stoi(m[2]);
 
-            cout << *matrix.at(r, c) << endl;
+            cout << matrix.at(r, c) << endl;
 
         // Comando inválido
         } else {
