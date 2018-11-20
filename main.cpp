@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
                     c = stoi(m[2]),
                     x = stoi(m[3]);
 
-                matrix.at(r, c) = x;
+                matrix[r][c] = x;
             } catch (const char* msg) {
                 cerr << "Err: " << msg << endl;
             }
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
             int r = stoi(m[1]),
                 c = stoi(m[2]);
 
-            cout << matrix.at(r, c) << endl;
+            cout << matrix[r][c] << endl;
 
         // Comando inválido
         } else {

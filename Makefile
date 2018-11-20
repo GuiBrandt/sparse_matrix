@@ -18,16 +18,16 @@ win32: tests
 	ren tests\all test\all.exe
 
 %_tests: obj/%_tests.o
-	mkdir -p build/tests
+	if not exist build/tests mkdir build/tests
 	$(CXX) $(LDFLAGS) $(LDLIBS_TESTS) -o build/tests/$* $^
 
 obj/%_tests.o: tests/%_tests.cpp include/%.hpp
-	mkdir -p obj
+	if not exist obj mkdir obj
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDLIBS) -c $< -o $@
 
 obj/main.o: main.cpp include/sparse_matrix.hpp
-	mkdir -p build
-	mkdir -p obj
+	if not exist build mkdir build
+	if not exist obj mkdir obj
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDLIBS) -c $< -o $@
 
 clean:

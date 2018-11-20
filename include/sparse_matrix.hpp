@@ -6,6 +6,9 @@
  * @date 2018-09-30
  */
 
+#ifndef SPARSE_MATRIX_HPP
+#define SPARSE_MATRIX_HPP
+
 #include <functional>
 #include <utility>
 
@@ -46,13 +49,14 @@ private:
         }
     };
 
-    typedef std::pair<size_t, T> column;
-    typedef avl_tree<column, std::less<column>, compare_key<column>> column_tree;
+    typedef std::pair<size_t, T> column_t;
 
-    typedef std::pair<size_t, column_tree*> row;
+    typedef avl_tree<column_t, std::less<column_t>, compare_key<column_t>> column_tree;
 
-    avl_tree<row, std::less<row>, compare_key<row>> row_tree;   //! Árvore interna
-    T _default;                                                 //! Valor padrão
+    typedef std::pair<size_t, column_tree*> row_t;
+
+    avl_tree<row_t, std::less<row_t>, compare_key<row_t>> row_tree;     //! Árvore interna
+    T _default;                                                         //! Valor padrão
 
 public:
 
@@ -71,11 +75,14 @@ public:
         _default = other._default;
     }
 
+    class row;
+
     /**
      * @brief Classe de célula na matriz
      */
     class cell {
         friend class sparse_matrix;
+        friend class row;
 
     private:
         sparse_matrix* _matrix; //! Matriz à qual a célula pertence
@@ -96,6 +103,15 @@ public:
         /**
          * @brief Construtor de cópia
          * 
+         * @param model Objeto modelo
+         */
+        cell(const cell& model) {
+            *this = model;
+        }
+
+        /**
+         * @brief Operador de atribuição
+         * 
          * @param other Objeto modelo
          * @return cell& Esse objeto
          */
@@ -114,11 +130,11 @@ public:
          * @return cell& Esse objeto
          */
         cell & operator=(const T & value) {
-            row r(_row, nullptr);
-            column c(_col, value);
+            row_t r(_row, nullptr);
+            column_t c(_col, value);
 
             if (value == _matrix->_default) {
-                if (_matrix->row_tree.includes(r)) {
+                if (_matrix->row_tree.find(r)) {
                     if (r.second->includes(c))
                         r.second->remove(c);
 
@@ -129,7 +145,7 @@ public:
                 }
 
             } else {
-                if (!_matrix->row_tree.includes(r)) {
+                if (!_matrix->row_tree.find(r)) {
                     column_tree* ct = new column_tree();
                     ct->insert(c);
 
@@ -164,16 +180,16 @@ public:
          * @return T Valor da célula
          */
         T operator*() const {
-            row r;
+            row_t r;
             r.first = _row;
 
-            if (_matrix->row_tree.includes(r)) {
+            if (_matrix->row_tree.find(r)) {
                 column_tree* cols = r.second;
 
-                column col;
+                column_t col;
                 col.first = _col;
                 
-                if (cols->includes(col))
+                if (cols->find(col))
                     return col.second;
             }
             
@@ -186,16 +202,16 @@ public:
          * @return T Valor da célula
          */
         T* operator->() {
-            row r;
+            row_t r;
             r.first = _row;
 
-            if (_matrix->row_tree.includes(r)) {
+            if (_matrix->row_tree.find(r)) {
                 column_tree* cols = r.second;
 
-                column col;
+                column_t col;
                 col.first = _col;
                 
-                if (cols->includes(col))
+                if (cols->find(col))
                     return &col.second;
             }
             
@@ -215,13 +231,66 @@ public:
     };
 
     /**
-     * @brief Obtém um célula em uma determinada posição da matriz
+     * @brief Classe de linha na matriz
+     */
+    class row {
+        friend class sparse_matrix;
+
+        private:
+            sparse_matrix* _matrix; //! Matriz à qual a célula pertence
+            size_t _row;            //! Número da linha na matriz
+
+            /**
+             * @brief Construtor
+             * 
+             * @param matrix Matriz "dona" da linha
+             * @param row Linha
+             */
+            row(sparse_matrix* matrix, size_t row) : _matrix(matrix), _row(row) {}
+
+        public:
+            /**
+             * @brief Construtor de cópia
+             * 
+             * @param model Objeto modelo
+             */
+            row(const row & model) {
+                *this = model;
+            }
+
+            /**
+             * @brief Operador de atribuição
+             * 
+             * @param other Objeto modelo
+             * @return cell& Esse objeto
+             */
+            row & operator=(const row & other) {
+                _matrix = other._matrix;
+                _row = other._row;
+
+                return *this;
+            }
+
+            /**
+             * @brief Obtém uma célula em uma determinada coluna da linha da matriz
+             * 
+             * @param row Coluna na linha da matriz
+             * @return cell A célula naquela posição da matriz
+             */
+            cell operator[](size_t col) {
+                return cell(_matrix, _row, col);
+            }
+    };
+
+    /**
+     * @brief Obtém uma linha da matriz
      * 
-     * @param n Linha na matriz
-     * @param m Coluna na matriz
+     * @param r Linha na matriz
      * @return cell A célula naquela posição da matriz
      */
-    cell at(size_t n, size_t m) {
-        return cell(this, n, m);
+    row operator[](size_t r) {
+        return row(this, r);
     }
 };
+
+#endif // SPARSE_MATRIX_HPP
