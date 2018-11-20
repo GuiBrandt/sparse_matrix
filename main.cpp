@@ -10,6 +10,7 @@ using namespace regex_constants;
 
 static const regex SET(R"(^\s*(\d+)\s*,\s*(\d+)\s*=\s*(\d+)\s*$)", icase | optimize);
 static const regex PRINT(R"(^\s*(?:p|print)\s*(\d+)\s*,\s*(\d+)\s*$)", icase | optimize);
+static const regex SAVEGV(R"(^\s*(?:g|graphviz)\s+([^\\\?%\*]+)\s*$)", icase | optimize);
 static const regex QUIT(R"(^\s*(?:q|quit|exit)\s*$)", icase | optimize);
 
 /**
@@ -31,6 +32,7 @@ int main(int argc, char** argv) {
 
     cout << "n,m=x          : Set (N,M) to be X" << endl;
     cout << "p|print n,m    : Print out the value at (N,M)" << endl;
+    cout << "g|graphviz <filename>      : Save Graphviz model to file" << endl;
     cout << "q|e|quit|exit  : Quit" << endl;
     cout << endl;
 
@@ -64,6 +66,12 @@ int main(int argc, char** argv) {
                 c = stoi(m[2]);
 
             cout << matrix[r][c] << endl;
+
+        // Salva a matriz como modelo do graphviz num arquivo
+        } else if (regex_search(line, m, SAVEGV)) {
+            ofstream f(m[1]);
+            matrix.gv_save(f);
+            f.close();
 
         // Comando inválido
         } else {

@@ -291,6 +291,42 @@ public:
     row operator[](size_t r) {
         return row(this, r);
     }
+
+    /**
+     * @brief Salva a matriz num arquivo .gv
+     * 
+     * @param file Arquivo de destino
+     */
+    void gv_save(std::ofstream& file) {
+        file << "strict graph {" << std::endl;
+        file << "node [shape=rect]" << std::endl;
+
+        int i = 0;
+        row_tree.gv_save(file, i);
+        file << std::endl;
+
+        for (auto it = row_tree.begin_in_order(); it != row_tree.end_in_order(); it++) {
+            i++;
+
+            file << "subgraph cluster_row" << it->first << " {" << std::endl;
+            file << "style=filled" << std::endl;
+            file << "color=lightgrey" << std::endl;
+            file << "label=\"Row #" << it->first << "\"" << std::endl;
+            file << "node [shape=rect, style=filled, color=white]" << std::endl;
+            it->second->gv_save(file, i);
+            file << "}" << std::endl;
+        }
+
+        file << "}";
+    }
 };
+
+template <
+    class K,
+    class V
+> std::ostream& operator<<(std::ostream& out, std::pair<K, V> p) {
+    out << p.first << " => " << p.second;
+    return out;
+}
 
 #endif // SPARSE_MATRIX_HPP
