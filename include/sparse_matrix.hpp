@@ -311,7 +311,7 @@ public:
             file << "subgraph cluster_row" << it->first << " {" << std::endl;
             file << "style=filled" << std::endl;
             file << "color=lightgrey" << std::endl;
-            file << "label=\"Row #" << it->first << "\"" << std::endl;
+            file << "label=\"" << it->second << "\"" << std::endl;
             file << "node [shape=rect, style=filled, color=white]" << std::endl;
             it->second->gv_save(file, i);
             file << "}" << std::endl;
