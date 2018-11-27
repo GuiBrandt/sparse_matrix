@@ -71,9 +71,39 @@ public:
      * @param other Matriz a ser copiada
      */
     sparse_matrix(const sparse_matrix & other) {
+        *this = other;
+    }
+    
+    /**
+	 * @brief Operador de cópia
+	 * 
+	 * @param model Objeto modelo
+	 * @return sparse_matrix& Cópia do objeto modelo
+	 */
+	sparse_matrix& operator = (const sparse_matrix& model) {
+		if (this == & model)
+			return *this;
+
+		this->~sparse_matrix();
+
         row_tree = other.row_tree;
         _default = other._default;
-    }
+
+		return *this;
+	}
+
+    /**
+	 * @brief Operador de swap
+	 * 
+	 * @param first Primeiro objeto
+	 * @param other Outro objeto
+	 */
+	friend void swap(sparse_matrix& first, sparse_matrix& other) {
+		using std::swap;
+
+		swap(first.row_tree, other.row_tree);
+		swap(first._default, other._default);
+	}
 
     class row;
 
@@ -293,6 +323,33 @@ public:
     }
 
     /**
+     * @brief Limpa uma linha da matriz
+     * 
+     */
+    void clear_row(size_t r) {
+        row_t row;
+        row.first = r;
+
+        row_tree.remove(row);
+    }
+    
+    /**
+     * @brief Limpa uma coluna da matriz
+     * 
+     */
+    void clear_column(size_t c) {
+        column_t col;
+        col.first = c;
+        
+        for (auto row = row_tree.begin(); row != row_tree.end(); row++) {
+            row->second->remove(col);
+            
+            if (row->second->empty())
+                row_tree.remove(row);
+        }
+    }
+
+    /**
      * @brief Salva a matriz num arquivo .gv
      * 
      * @param file Arquivo de destino
@@ -321,6 +378,9 @@ public:
     }
 };
 
+/**
+ * @brief Operador de escrita para std::ostream do std::pair
+ */
 template <
     class K,
     class V

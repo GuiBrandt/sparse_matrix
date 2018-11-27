@@ -1,0 +1,29 @@
+strict graph {
+node [shape=rect]
+"node0" [label="0 => 0x6fd898"]
+"node1" [label="1 => 0x6fedd0"]
+"node0" -- "node1"
+
+subgraph cluster_row0 {
+style=filled
+color=lightgrey
+label="0x6fd898"
+node [shape=rect, style=filled, color=white]
+"node2" [label="2 => 1"]
+"node3" [label="1 => 1"]
+"node2" -- "node3"
+"node4" [label="3 => 4"]
+"node2" -- "node4"
+}
+subgraph cluster_row1 {
+style=filled
+color=lightgrey
+label="0x6fedd0"
+node [shape=rect, style=filled, color=white]
+"node5" [label="3 => 54"]
+"node6" [label="2 => 4"]
+"node5" -- "node6"
+"node7" [label="5 => 65"]
+"node5" -- "node7"
+}
+}
